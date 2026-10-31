@@ -2,6 +2,7 @@
 'use strict';
 window.PMAccount=(()=>{
   let state=null,loading=true,failure='',saving=false;
+  const externalAccountOrigin=window.PM_ACCOUNT_ORIGIN||'';
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const storageKey=()=>state?.user?'pm-solved:'+state.user.id:'tush-solved';
   function update(data){
@@ -20,12 +21,14 @@ window.PMAccount=(()=>{
     return data;
   }
   async function load(){
+    if(externalAccountOrigin){loading=false;state=null;failure='';redraw();return}
     loading=true;failure='';redraw();
     try{const data=await api('/api/account');loading=false;update(data)}
     catch(error){loading=false;state=null;failure=error.status===401?'':error.message;redraw()}
   }
   function render(){
     const intro='<div class="wrap account-page"><div class="page-head"><div class="eyebrow">ЛИЧНЫЙ КАБИНЕТ</div><h1>Твой путь к пониманию</h1><p>Твои темы, решённые задачи и маленькие открытия</p></div>';
+    if(externalAccountOrigin)return intro+`<section class="card account-login"><div class="eyebrow">ПРОДОЛЖАЙ С СОХРАНЕНИЕМ ПРОГРЕССА</div><h2>Открой свой кабинет</h2><p>Вход через ChatGPT и сохранение задач доступны в основной версии сайта</p><a class="btn primary" href="${esc(externalAccountOrigin)}/#profile" target="_top">Перейти в личный кабинет ↗</a><p class="muted account-note">После входа продолжай обучение там, чтобы прогресс сохранялся за аккаунтом<br>На этой версии решения сохраняются только в браузере</p></section></div>`;
     if(loading)return intro+'<p role="status">Загружаем твой прогресс…</p></div>';
     if(failure&&!state)return intro+'<div class="card"><h3>Не удалось загрузить кабинет</h3><p role="status">'+esc(failure)+'</p><button class="btn small" data-account-retry>Попробовать снова</button></div></div>';
     if(!state)return intro+`<section class="card account-login"><span class="eyebrow">ПРОДОЛЖАЙ С ЛЮБОГО УСТРОЙСТВА</span><h2>Знания остаются с тобой</h2><p>Войди через ChatGPT, чтобы сохранять решённые задачи и XP в своём аккаунте</p><a class="btn primary" href="/signin-with-chatgpt?return_to=%2F%23profile" target="_top">Войти через ChatGPT ↗</a><p class="muted account-note">Тема оформления остаётся настройкой этого браузера</p></section></div>`;
