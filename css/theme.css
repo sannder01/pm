@@ -1,0 +1,77 @@
+/* Тема хранится отдельно от пользовательского style.css */
+:root { color-scheme:light }
+html[data-theme="dark"] {
+  color-scheme:dark;
+  --paper:#111;
+  --ink:#eee;
+  --muted:#b5b5b5;
+  --line:#383838;
+  --panel:rgba(25,25,25,.94)
+}
+.header-actions { display:flex;align-items:center;gap:12px }
+.theme-toggle {
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  min-height:40px;padding:10px 14px;border:1px solid var(--line);
+  border-radius:999px;background:var(--panel);color:var(--ink);
+  font:12px var(--sans);white-space:nowrap;
+  transition:background-color .6s ease-out,border-color .6s ease-out
+}
+.theme-toggle:hover { border-color:var(--ink) }
+.theme-toggle svg { width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.5 }
+.theme-moon,html[data-theme="light"] .theme-sun { display:none }
+html[data-theme="light"] .theme-moon { display:block }
+body,header,footer,.card,.page-head,.lab,.quote,.ribbon,.formula,.about-copy {
+  transition:background-color .6s ease-out,color .6s ease-out,border-color .6s ease-out
+}
+@media screen {
+  html[data-theme="dark"] .hero p,
+  html[data-theme="dark"] .hero .meta,
+  html[data-theme="dark"] .hero-number,
+  html[data-theme="dark"] .method b,
+  html[data-theme="dark"] .about-copy p { color:var(--muted) }
+  html[data-theme="dark"] .dark { background:var(--panel) }
+  html[data-theme="dark"] .formula { background:#242424 }
+  html[data-theme="dark"] .subject .symbol { color:#696969 }
+  html[data-theme="dark"] .subject:hover { border-color:#888 }
+  html[data-theme="dark"] .btn.primary,
+  html[data-theme="dark"] .btn:hover,
+  html[data-theme="dark"] .progress-chip #level { color:#111 }
+  html[data-theme="dark"] .btn.primary:before { background:#ccc }
+  html[data-theme="dark"] .page-head h1:before,
+  html[data-theme="dark"] .section-head h2:before { background:var(--ink) }
+  html[data-theme="dark"] .lab input { accent-color:#ddd }
+  html[data-theme="dark"] .cart { background:#ddd }
+  html[data-theme="dark"] .cart:after { color:#ddd }
+  html[data-theme="dark"] .track { border-color:#777 }
+  html[data-theme="dark"] .xp-bar { background:#383838 }
+  html[data-theme="dark"] .xp-bar span { background:#ddd }
+  html[data-theme="dark"] .toast { background:#eee;color:#111 }
+  html[data-theme="dark"] :is(button,a,input,select,summary):focus-visible { outline-color:#ddd }
+  html[data-theme="dark"] .scene-guides { stroke:#626262 }
+  html[data-theme="dark"] .scene-grid { background-image:radial-gradient(#888 .7px,transparent .8px) }
+  html[data-theme="dark"] #scene,
+  html[data-theme="dark"] .scene-fallback { filter:invert(1) }
+  html[data-theme="dark"] .hero-visual #fluid { filter:grayscale(1);mix-blend-mode:screen }
+  html[data-theme="dark"] .scene-shadow { background:radial-gradient(ellipse,rgba(255,255,255,.08),transparent 70%) }
+  html[data-theme="dark"] #transition { background:radial-gradient(ellipse at 30% 50%,#060606 30%,#242424 60%,transparent 75%) }
+  html[data-theme="dark"] select option { background:#191919;color:#eee }
+  html[data-theme="dark"] input::placeholder { color:#999;opacity:1 }
+  html[data-theme="dark"] ::selection { background:#ddd;color:#111 }
+}
+@media(max-width:1100px) and (min-width:901px) {
+  header { gap:15px;padding-inline:3% }
+  nav { gap:18px }
+  .header-actions { gap:8px }
+}
+@media(max-width:600px) {
+  .header-actions { gap:8px }
+  .theme-toggle { padding:10px;min-width:40px }
+  .theme-label { display:none }
+}
+@media(prefers-reduced-motion:reduce) {
+  body,header,footer,.card,.page-head,.lab,.quote,.ribbon,.formula,.about-copy,.theme-toggle { transition:none }
+}
+@media print {
+  html[data-theme] { color-scheme:light;--paper:#fff;--ink:#000;--muted:#333;--line:#ccc;--panel:#fff }
+  .theme-toggle { display:none!important }
+}
