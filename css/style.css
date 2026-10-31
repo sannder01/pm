@@ -1,13 +1,15 @@
 /* Бумага, типографика и базовые элементы */
 :root {
-  --paper:#fafafa;
+  --paper:#fff;
   --ink:#111;
   --muted:#555;
   --line:#d4d4d4;
   --sans:'IBM Plex Sans',Arial,sans-serif;
   --serif:'IBM Plex Serif',Georgia,serif;
   --mono:'IBM Plex Mono',monospace;
-  --panel:rgba(250,250,250,.88)
+  --panel:rgba(255,255,255,.92);
+  --r:16px;
+  --r-sm:10px
 }
 * {
   box-sizing:border-box
@@ -27,6 +29,7 @@ body {
 }
 
 body:before {
+  display:none!important;
   content:'';
   position:fixed;
   inset:0;
@@ -359,7 +362,7 @@ h3 {
   font:11px var(--sans)
 }
 .dark {
-  background:rgba(250,250,250,.92);
+  background:rgba(255,255,255,.95);
   color:var(--ink)
 }
 .dark .symbol {
@@ -824,6 +827,70 @@ footer {
 
 }
 
+
+/* Скругления */
+.card,.lab,.empty,.quote,.page-head,.section-head,.method article,.about-copy,.ribbon {
+  border-radius:var(--r)
+}
+.btn,.progress-chip,.toast,.filters select,.search,input.answer,.formula,.formula-table,.track,.hero-inner h1,.hero-inner>p,.hero-inner>.eyebrow,.hero-inner>.meta {
+  border-radius:var(--r-sm)
+}
+.btn,.progress-chip {
+  border-radius:999px
+}
+.progress-chip #level {
+  border-radius:999px;
+  padding:5px 9px
+}
+.filters select,.search {
+  border-radius:var(--r-sm)
+}
+input.answer {
+  border:1px solid var(--line);
+  border-radius:var(--r-sm);
+  padding:14px 16px
+}
+input.answer:focus {
+  border-color:var(--ink);
+  outline:none
+}
+.formula-table {
+  border-collapse:separate;
+  border-spacing:0;
+  border:1px solid var(--line);
+  overflow:hidden
+}
+.formula-table tr:last-child td {
+  border-bottom:0
+}
+.cart {
+  border-radius:6px
+}
+.xp-bar,.xp-bar span {
+  border-radius:999px
+}
+.hero {
+  border-radius:0 0 var(--r) var(--r)
+}
+header {
+  border-radius:0 0 var(--r) var(--r)
+}
+.ribbon {
+  margin:0 5%;
+  border:1px solid var(--line);
+  border-radius:var(--r)
+}
+.quote {
+  margin:0 5%;
+  border:1px solid var(--line)
+}
+.subject {
+  border-radius:var(--r)
+}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible {
+  border-radius:var(--r-sm)
+}
+
 @media print {
   html,body {
   background:#fff!important;
@@ -884,4 +951,3 @@ h1:before,h2:before,h3:before,.btn:before,.btn:after,.eyebrow:before {
 }
 
 }
-
