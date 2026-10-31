@@ -31,4 +31,10 @@
 
 WebGL Fluid Simulation: Pavel Dobryakov, MIT, https://github.com/PavelDoGreat/WebGL-Fluid-Simulation. Реклама, аналитика, внешние переходы и GUI оригинальной демонстрации удалены. Цвета сведены к серому; вывод инвертирован для чёрной туши на бумаге.
 
-KaTeX 0.16.11; GSAP / ScrollTrigger 3.12.5; Google Fonts: Marck Script и IBM Plex Mono.
+KaTeX 0.16.11; GSAP / ScrollTrigger 3.12.5; Google Fonts: IBM Plex Sans (основной текст и интерфейс), IBM Plex Serif (заголовки), IBM Plex Mono (формулы и код). Marck Script удалён полностью.
+
+## Бумажный фон
+
+Процедурный SVG встроен в CSS: feTurbulence создаёт складки, feDiffuseLighting освещает рельеф. Непрозрачность 0,24, нейтральный фон #fafafa. Текст находится над текстурой на полупрозрачных подложках с blur. На мобильных фон не фиксирован. При печати текстура, чернила и декоративные мазки отключаются.
+
+SOURCE.md содержит снимок исходного кода первой версии. Актуальные файлы — index.html, css/style.css и js/*.js.
