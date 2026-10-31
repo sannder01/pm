@@ -50,7 +50,7 @@ body,header,footer,.card,.page-head,.lab,.quote,.ribbon,.formula,.about-copy {
   html[data-theme="dark"] .scene-guides { stroke:#626262 }
   html[data-theme="dark"] .scene-grid { background-image:radial-gradient(#888 .7px,transparent .8px) }
   html[data-theme="dark"] #scene,
-  html[data-theme="dark"] .scene-fallback { filter:invert(1) }
+  html[data-theme="dark"] .scene-fallback { filter:none }
   html[data-theme="dark"] .hero-visual #fluid { filter:grayscale(1);mix-blend-mode:screen }
   html[data-theme="dark"] .scene-shadow { background:radial-gradient(ellipse,rgba(255,255,255,.08),transparent 70%) }
   html[data-theme="dark"] #transition { background:radial-gradient(ellipse at 30% 50%,#060606 30%,#242424 60%,transparent 75%) }
