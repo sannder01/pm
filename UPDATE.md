@@ -2,6 +2,8 @@
 
 - index.html
 - css/style.css
+- js/app.js
+- js/content.js
 - README.md
 
 # Полное содержимое
@@ -13,8 +15,8 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Тушь — физика и математика через понятные объяснения, эксперименты и задачи. Бесплатно, на русском.">
-<title>Тушь — понять, а не запомнить</title>
+<meta name="description" content="pm физика и математика через понятные объяснения, эксперименты и задачи. Бесплатно, на русском.">
+<title>pm понять, а не запомнить</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <link rel="stylesheet" href="css/style.css">
@@ -25,10 +27,10 @@
 </head>
 <body>
 <!-- Шапка и основная навигация -->
-<header><a class="brand" href="#home" aria-label="Тушь — главная">тушь<span>●</span></a><nav aria-label="Разделы сайта"><a href="#theory">Теория</a><a href="#examples">Примеры</a><a href="#tasks">Задачи</a><a href="#formulas">Формулы</a><a href="#about">О проекте</a></nav><a class="progress-chip" href="#tasks"><span id="level">01</span> УРОВЕНЬ <span id="xp">0 XP</span></a></header>
+<header><a class="brand" href="#home" aria-label="pm главная">pm</a><nav aria-label="Разделы сайта"><a href="#theory">Теория</a><a href="#examples">Примеры</a><a href="#tasks">Задачи</a><a href="#formulas">Формулы</a><a href="#about">О проекте</a></nav><a class="progress-chip" href="#tasks"><span id="level">01</span> УРОВЕНЬ <span id="xp">0 XP</span></a></header>
 <main id="main" tabindex="-1"></main>
 <!-- Постоянные элементы интерфейса -->
-<footer><a class="brand" href="#home">тушь<span>●</span></a><p>Физика. Математика. Любопытство.</p><span>БЕСПЛАТНО · БЕЗ РЕГИСТРАЦИИ</span></footer>
+<footer><a class="brand" href="#home">pm</a><p>Физика. Математика. Любопытство.</p><span>БЕСПЛАТНО · БЕЗ РЕГИСТРАЦИИ</span></footer>
 <div id="transition" aria-hidden="true"></div><div class="toast" role="status" id="toast"></div>
 <noscript>Для интерактивных уроков и проверки ответов включите JavaScript в браузере.</noscript>
 </body></html>
@@ -928,10 +930,360 @@ h1:before,h2:before,h3:before,.btn:before,.btn:after,.eyebrow:before {
 
 ````
 
+## js/app.js
+
+````javascript
+/* Навигация, прогресс и учебные взаимодействия. */
+'use strict';
+const main=document.querySelector('main'), reduce=matchMedia('(prefers-reduced-motion: reduce)');
+let solved=new Set();try{const a=JSON.parse(localStorage.getItem('tush-solved')||'[]');if(Array.isArray(a))solved=new Set(a.filter(id=>COURSE.some(t=>t.id===id)))}catch{}
+const subjects={physics:'Физика',math:'Математика'};
+const math=f=>`<div class="formula math" data-tex="${f}">${f}</div>`;
+const steps=a=>a.map((s,i)=>`<details><summary>Шаг ${i+1}</summary><p>${s}</p></details>`).join('');
+const header=(n,title,desc)=>`<div class="page-head reveal"><div class="eyebrow">${n} / ТЕТРАДЬ ИССЛЕДОВАТЕЛЯ</div><h1>${title}</h1><p>${desc}</p></div>`;
+function progress(){let xp=solved.size*25;document.querySelector('#xp').textContent=xp+' XP';document.querySelector('#level').textContent=String(1+Math.floor(xp/100)).padStart(2,'0')}
+function home(){return `<section class="hero"><div class="ink-static"></div><canvas id="fluid" aria-hidden="true"></canvas><div class="hero-inner"><div class="eyebrow">ОНЛАЙН-ТЕТРАДЬ · ФИЗИКА И МАТЕМАТИКА</div><h1>Меньше зубрить.<br><em>Больше понимать.</em></h1><p>У сложных вещей есть простые объяснения. Исследуй законы мира, решай задачи и собирай знания шаг за шагом.</p><a class="btn primary" href="#theory">Начать исследование <span>↗</span></a><div class="meta"><span>12 ТЕМ ДЛЯ ПЕРВОГО ШАГА</span><span>7–10 КЛАССЫ</span><span>В ТВОЁМ ТЕМПЕ</span></div></div><span class="hero-number">01 ВСЁ НАЧИНАЕТСЯ С ВОПРОСА</span></section><div class="ribbon"><span>ЗНАНИЯ НЕ ТРЕБУЮТ ПОДПИСКИ</span><span>НИКАКИХ ОЦЕНОК. ТОЛЬКО ПРОГРЕСС.</span><span>ЛЮБОПЫТСТВО ПРИВЕТСТВУЕТСЯ ↗</span></div><section class="wrap"><div class="section-head reveal"><div><div class="eyebrow">01 / ВЫБЕРИ НАПРАВЛЕНИЕ</div><h2>Две науки.<br>Один мир.</h2></div><p>От движения мяча до движения мысли. Начни с того, что вызывает вопросы.</p></div><div class="grid"><a class="card subject reveal" href="#theory/physics"><span class="eyebrow">01 / ФИЗИКА</span><span class="symbol">F</span><div><h3>Как устроен мир</h3><p>Движение, силы, энергия и электричество. Проверь законы на практике.</p></div><div class="card-bottom"><span>6 ТЕМ · 6 ЗАДАЧ</span><span>Исследовать ↗</span></div></a><a class="card subject dark reveal" href="#theory/math"><span class="eyebrow">02 / МАТЕМАТИКА</span><span class="symbol">∑</span><div><h3>Язык закономерностей</h3><p>От дробей до производных. Находи связи и учись рассуждать.</p></div><div class="card-bottom"><span>6 ТЕМ · 6 ЗАДАЧ</span><span>Разобраться ↗</span></div></a></div></section><section class="quote reveal"><p>«Важнее не переставать задавать вопросы»</p><span>ПРИНЦИП НАШЕЙ ТЕТРАДИ</span></section><section class="wrap"><div class="eyebrow">02 / ТВОЙ МАРШРУТ</div><h2 class="reveal">Знание оставляет след.</h2><div class="method"><article class="reveal"><b>01 РАЗБЕРИСЬ</b><h3>Одна идея за раз</h3><p>Короткая теория, смысл формул и примеры из жизни.</p></article><article class="reveal"><b>02 ПОПРОБУЙ</b><h3>Ошибаться можно</h3><p>Решения по шагам и подсказки помогут найти свой путь.</p></article><article class="reveal"><b>03 ПРОДВИГАЙСЯ</b><h3>Каждый шаг считается</h3><p>25 XP за задачу. Новый уровень каждые 100 XP. Прогресс сохраняется в этом браузере.</p></article></div></section>`}
+function filters(subject=''){return `<div class="filters no-print"><select id="subject" aria-label="Предмет"><option value="">Все предметы</option value="physics" ${subject==='physics'?'selected':''}>Физика</option><option value="math" ${subject==='math'?'selected':''}>Математика</option></select><select id="grade" aria-label="Класс"><option value="">Все классы</option>${[7,8,9,10].map(g=>`<option value="${g}">${g} класс</option>`).join('')}</select><input class="search" id="search" aria-label="Поиск по темам" placeholder="Найти тему…" type="search"></div>`}
+function catalog(page,subject){const info={theory:['01','Понять суть.','Короткие главы, в которых у каждой формулы есть смысл. Выбери предмет и класс.'],examples:['02','Разобрать по шагам.','Не торопись смотреть ответ. Попробуй предположить следующий шаг, затем раскрой его.'],tasks:['03','Твоя очередь.','Введи число без единиц измерения. Принимаются десятичные числа с точкой или запятой и дроби вроде 3/4. За первое решение 25 XP.'],formulas:['04','Всё под рукой.','Справочник основных формул из наших уроков. Отфильтруй нужные темы и сохрани их через «Печать → Сохранить как PDF».']};return `<div class="wrap">${header(...info[page])}${page==='tasks'?`<p class="mono">РЕШЕНО ${solved.size} / ${COURSE.length} <span class="muted">· ${solved.size*25} XP</span></p><div class="xp-bar"><span style="width:${solved.size/COURSE.length*100}%"></span></div>`:''}${filters(subject)}${page==='formulas'?'<button class="btn small no-print" id="print">Печать / PDF ↗</button>':''}<div id="results"></div>${page==='theory'?lab():''}</div>`}
+function lab(){return `<section class="lab reveal"><div class="eyebrow">МИНИ-ЛАБОРАТОРИЯ / ВТОРОЙ ЗАКОН НЬЮТОНА</div><h3>Сдвинь с места.</h3><p class="muted">Меняй силу и массу. Наблюдай движение из состояния покоя без трения в течение 3 секунд.</p><div class="lab-controls"><label>Сила: <output id="force-value">10</output> Н<input id="force" type="range" min="0" max="30" value="10"></label><label>Масса: <output id="mass-value">5</output> кг<input id="mass" type="range" min="1" max="15" value="5"></label></div><div class="track"><div class="cart" id="cart"></div></div><p class="lab-output" id="lab-output"></p><button class="btn small" id="run">Запустить опыт ↗</button><p class="muted">Масштаб: длина дорожки соответствует 150 м. При уменьшенной анимации показываем конечное положение.</p></section>`}
+function renderResults(page){const sub=document.querySelector('#subject').value,grade=document.querySelector('#grade').value,q=document.querySelector('#search').value.toLowerCase().trim();const list=COURSE.filter(t=>(!sub||t.subject===sub)&&(!grade||t.grade===+grade)&&(!q||(t.title+' '+t.intro).toLowerCase().includes(q)));const results=document.querySelector('#results');if(!list.length){results.innerHTML='<p class="empty">Такой темы пока нет в этой тетради. Попробуй другой запрос или класс.</p>';return}if(page==='formulas'){results.innerHTML=`<table class="formula-table"><thead><tr><th>Тема</th><th>Формула</th><th>Обозначения / условия</th></tr></thead><tbody>${list.map(t=>`<tr><td>${t.title}<br><small>${subjects[t.subject]} · ${t.grade} класс</small></td><td><span class="math" data-tex="${t.formula}">${t.formula}</span></td><td>${t.units}</td></tr>`).join('')}</tbody></table>`}else results.innerHTML=`<div class="grid">${list.map(t=>`<article class="card lesson" id="${t.id}"><div class="tag">${subjects[t.subject].toUpperCase()} / ${t.grade} КЛАСС</div><h3>${t.title}</h3>${page==='theory'?`<p>${t.intro}</p>${math(t.formula)}<p class="mono muted" style="font-size:11px">${t.units}</p><p class="muted">${t.note}</p><a class="btn small" href="#tasks/${t.subject}">Закрепить ↗</a>`:page==='examples'?`<p>${t.example}</p>${steps(t.exampleSteps)}`:`${solved.has(t.id)?'<span class="task-done">✓ РЕШЕНО</span>':''}<p>${t.question}</p><form data-task="${t.id}"><label class="mono" style="font-size:11px" for="answer-${t.id}">ТВОЙ ОТВЕТ</label><input class="answer" id="answer-${t.id}" name="answer" autocomplete="off" placeholder="Введи число или дробь" required><button class="btn small primary" type="submit">Проверить ↗</button><p class="feedback" aria-live="polite"></p></form><details><summary>Нужна подсказка?</summary><p>${t.hint}</p></details><details><summary>Показать решение</summary><div>${t.steps.map(s=>`<p>${s}</p>`).join('')}</div></details>`}</article>`).join('')}</div>`;renderMath();cleanInterfaceText()}
+function renderMath(){if(window.katex)document.querySelectorAll('[data-tex]').forEach(el=>katex.render(el.dataset.tex,el,{throwOnError:false,output:'html',strict:false}))}
+function about(){return `<div class="wrap">${header('05','Место для любопытства.','pm открытая учебная тетрадь по физике и математике. Без оплаты и регистрации.')}<div class="about-copy"><h2>Понять значит связать.</h2><p>Формула становится полезной, когда ты понимаешь, что за ней стоит. Здесь можно читать объяснения, разбирать примеры по шагам и проверять себя без страха получить плохую оценку.</p><p>Первая тетрадь охватывает 12 вводных тем для 7–10 классов. Это отправная точка, а не полный школьный курс. Классы указаны ориентировочно: порядок тем в разных программах отличается.</p><h2>Твой прогресс принадлежит тебе.</h2><p>Решённые задачи сохраняются только в браузере на этом устройстве. Для сохранения нужен доступ к локальному хранилищу. Если очистить данные сайта, прогресс исчезнет. За каждую уникальную задачу начисляется 25 XP.</p><h2>На связи.</h2><p>Автор: Maxim Samarin. Нашёл ошибку или придумал тему? Напиши в обсуждение задачи на GitHub.</p><a class="btn" href="https://github.com/sannder01/pm/issues" target="_blank" rel="noopener">Предложить улучшение ↗</a><p style="margin-top:30px;font-size:13px">Код проекта: <a href="https://github.com/sannder01/pm">github.com/sannder01/pm</a><br>Чернила: адаптация WebGL Fluid Simulation Павла Добрякова (MIT). Формулы: KaTeX. Анимация появления: GSAP ScrollTrigger.</p></div></div>`}
+let routeTimer;function route(){const [raw,subject]=location.hash.slice(1).split('/'),page=['theory','examples','tasks','formulas','about'].includes(raw)?raw:'home';main.innerHTML=page==='home'?home():page==='about'?about():catalog(page,subject);document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active',a.hash==='#'+page));document.title=({home:'Понять, а не запомнить',theory:'Теория',examples:'Примеры',tasks:'Задачи',formulas:'Справочник формул',about:'О проекте'}[page])+' pm';if(document.querySelector('#results')){renderResults(page);document.querySelectorAll('.filters select,.filters input').forEach(el=>el.addEventListener('input',()=>renderResults(page)))}document.querySelector('#print')?.addEventListener('click',()=>window.print());if(page==='theory')initLab();if(page==='home')initFluid();cleanInterfaceText();animate();window.scrollTo(0,0)}
+function animate(){if(!reduce.matches&&window.gsap&&window.ScrollTrigger){gsap.registerPlugin(ScrollTrigger);ScrollTrigger.getAll().forEach(t=>t.kill());document.querySelectorAll('.reveal').forEach(el=>{gsap.fromTo(el,{opacity:0,y:18,clipPath:'inset(0 15% 0 0)'},{opacity:1,y:0,clipPath:'inset(0 0% 0 0)',duration:.9,ease:'power1.out',scrollTrigger:{trigger:el,start:'top 94%',once:true}})})}}
+window.addEventListener('hashchange',()=>{clearTimeout(routeTimer);if(reduce.matches||!window.gsap){route();return}gsap.killTweensOf('#transition');gsap.fromTo('#transition',{scale:0,opacity:0},{scale:2.5,opacity:1,duration:.6,ease:'power1.out',onComplete:()=>{route();gsap.to('#transition',{scale:3,opacity:0,duration:.6,ease:'power1.out'})}})});
+document.addEventListener('pointermove',e=>{const b=e.target.closest('.btn');if(b){const r=b.getBoundingClientRect();b.style.setProperty('--x',(e.clientX-r.left)+'px');b.style.setProperty('--y',(e.clientY-r.top)+'px')}});
+function parseAnswer(value){const s=value.trim().replace(',','.');if(/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(s))return Number(s);const f=s.match(/^([+-]?(?:\d+(?:\.\d*)?|\.\d+))\s*\/\s*([+-]?(?:\d+(?:\.\d*)?|\.\d+))$/);return f&&Number(f[2])!==0?Number(f[1])/Number(f[2]):NaN}
+document.addEventListener('submit',e=>{const form=e.target;if(!form.dataset.task)return;e.preventDefault();const t=COURSE.find(t=>t.id===form.dataset.task),value=parseAnswer(new FormData(form).get('answer')),out=form.querySelector('.feedback');if(!Number.isFinite(value)){out.textContent='Введи число или дробь с ненулевым знаменателем.';return}if(Math.abs(value-t.answer)>1e-8*Math.max(1,Math.abs(t.answer))){out.textContent='Пока не сходится. Проверь вычисления или открой подсказку.';return}out.textContent='✓ Верно! Ты разобрался.';out.classList.add('success');if(!solved.has(t.id)){solved.add(t.id);try{localStorage.setItem('tush-solved',JSON.stringify([...solved]))}catch{out.textContent+=' Прогресс сохранён только до закрытия страницы.'}progress();const toast=document.querySelector('#toast');toast.textContent='+25 XP · Ещё один понятный закон';toast.classList.add('visible');setTimeout(()=>toast.classList.remove('visible'),2500);form.closest('article').insertAdjacentHTML('afterbegin','<span class="task-done">✓ РЕШЕНО</span>')}});
+/* Мини-лаборатория: s = at² / 2, дорожка соответствует 150 м. */
+let labFrame;function initLab(){const f=document.querySelector('#force'),m=document.querySelector('#mass'),cart=document.querySelector('#cart');function values(){cancelAnimationFrame(labFrame);document.querySelector('#force-value').textContent=f.value;document.querySelector('#mass-value').textContent=m.value;document.querySelector('#lab-output').textContent=`a = F / m = ${(+f.value/+m.value).toFixed(2)} м/с²`;cart.style.transform='translateX(0)'}f.oninput=m.oninput=values;values();document.querySelector('#run').onclick=()=>{cancelAnimationFrame(labFrame);const a=+f.value/+m.value,max=cart.parentElement.clientWidth-40,start=performance.now();function frame(now){if(!cart.isConnected)return;const t=reduce.matches?3:Math.min((now-start)/1000,3),s=.5*a*t*t;cart.style.transform=`translateX(${s/150*max}px)`;document.querySelector('#lab-output').textContent=`a = ${a.toFixed(2)} м/с² · t = ${t.toFixed(1)} с · s = ${s.toFixed(2)} м`;if(t<3)labFrame=requestAnimationFrame(frame)}labFrame=requestAnimationFrame(frame)}}
+/* Симуляция запускается только на большом экране без reduced-motion. */
+let fluidLoaded=false;function initFluid(){if(reduce.matches||matchMedia('(max-width: 900px)').matches)return;if(fluidLoaded){window.startTushFluid?.();return}const script=document.createElement('script');script.src='vendor/fluid.js';script.onload=()=>{fluidLoaded=true;window.startTushFluid?.()};document.body.append(script)}
+reduce.addEventListener('change',()=>{window.stopTushFluid?.();if(!reduce.matches&&location.hash.replace('#','')==='home')initFluid()});progress();route();
+
+/* Редакционный стиль: без конечных точек, многоточий и длинных тире. */
+function cleanInterfaceText() {
+    const clean = text => text.replace(/\s*[—]\s*/g, ' ').replace(/--+/g, ' ').replace(/[.\u2026]+(\s*)$/u, '$1');
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) {
+        const node = walker.currentNode;
+        if (!node.parentElement.closest('script, style, code, pre, .katex, [data-tex]')) nodes.push(node);
+    }
+    nodes.forEach(node => { node.nodeValue = clean(node.nodeValue); });
+    document.querySelectorAll('[placeholder], [aria-label]').forEach(el => {
+        for (const attr of ['placeholder', 'aria-label']) {
+            if (el.hasAttribute(attr)) el.setAttribute(attr, clean(el.getAttribute(attr)));
+        }
+    });
+}
+cleanInterfaceText();
+document.addEventListener('submit', () => queueMicrotask(cleanInterfaceText));
+
+````
+
+## js/content.js
+
+````javascript
+/* Учебные материалы: темы, формулы, примеры и задачи */
+'use strict';
+window.COURSE = [
+  {
+    "id": "speed",
+    "subject": "physics",
+    "grade": 7,
+    "title": "Скорость и движение",
+    "intro": "Скорость показывает, какой путь тело проходит за единицу времени. При равномерном движении она не меняется",
+    "formula": "v=\\frac{s}{t}",
+    "units": "v: м/с; s: м; t: с",
+    "note": "Чтобы перевести км/ч в м/с, раздели на 3,6. Путь: длина всей траектории, а перемещение соединяет начальную и конечную точки",
+    "question": "Велосипедист проехал 600 м за 120 с. Какова его средняя скорость в м/с?",
+    "answer": 5,
+    "hint": "Раздели весь путь на всё время",
+    "steps": [
+      "Записываем данные: s = 600 м, t = 120 с",
+      "Используем v = s / t",
+      "Подставляем: 600 / 120 = 5 м/с"
+    ],
+    "example": "Пешеход прошёл 900 м за 15 минут. Найдём его скорость",
+    "exampleSteps": [
+      "Переводим время: 15 · 60 = 900 с",
+      "Делим путь на время: v = 900 / 900",
+      "Ответ: 1 м/с, или 3,6 км/ч"
+    ]
+  },
+  {
+    "id": "density",
+    "subject": "physics",
+    "grade": 7,
+    "title": "Масса и плотность",
+    "intro": "Одинаковые по размеру куски дерева и железа имеют разную массу. Плотность связывает массу материала с занимаемым объёмом",
+    "formula": "\\rho=\\frac{m}{V}",
+    "units": "ρ: кг/м³; m: кг; V: м³",
+    "note": "Плотность зависит от вещества и условий. Важно привести массу и объём к согласованным единицам",
+    "question": "Масса детали 540 г, её объём 200 см³. Найди плотность в г/см³",
+    "answer": 2.7,
+    "hint": "В этой задаче можно сразу делить граммы на кубические сантиметры",
+    "steps": [
+      "ρ = m / V",
+      "ρ = 540 / 200 = 2,7 г/см³",
+      "В СИ это 2700 кг/м³"
+    ],
+    "example": "Масса 2 м³ воды: 2000 кг. Найдём плотность",
+    "exampleSteps": [
+      "ρ = m / V",
+      "ρ = 2000 / 2 = 1000 кг/м³",
+      "Каждый кубометр воды имеет массу около 1000 кг"
+    ]
+  },
+  {
+    "id": "ohm",
+    "subject": "physics",
+    "grade": 8,
+    "title": "Закон Ома",
+    "intro": "Напряжение создаёт ток в цепи. Сопротивление ограничивает его: при одном напряжении большее сопротивление означает меньший ток",
+    "formula": "I=\\frac{U}{R}",
+    "units": "I: А; U: В; R: Ом",
+    "note": "Закон применяем к омическому участку цепи при неизменных физических условиях. Нельзя подключать амперметр напрямую к источнику",
+    "question": "К резистору 6 Ом приложено напряжение 12 В. Найди ток в амперах",
+    "answer": 2,
+    "hint": "Используй I = U / R",
+    "steps": [
+      "I = U / R",
+      "I = 12 / 6",
+      "Ответ: 2 А"
+    ],
+    "example": "Какое напряжение нужно для тока 0,5 А через резистор 10 Ом?",
+    "exampleSteps": [
+      "Выражаем напряжение: U = I · R",
+      "U = 0,5 · 10",
+      "Ответ: 5 В"
+    ]
+  },
+  {
+    "id": "newton",
+    "subject": "physics",
+    "grade": 9,
+    "title": "Сила и ускорение",
+    "intro": "Равнодействующая всех сил меняет скорость тела. Чем больше сила, тем больше ускорение. Чем больше масса, тем труднее разогнать тело",
+    "formula": "\\vec{F}_{\\text{рез}}=m\\vec{a}",
+    "units": "F: Н; m: кг; a: м/с²",
+    "note": "Закон работает в инерциальной системе отсчёта. Если силы уравновешены, тело покоится или движется равномерно и прямолинейно",
+    "question": "На тело массой 4 кг действует равнодействующая 12 Н. Найди ускорение в м/с²",
+    "answer": 3,
+    "hint": "Вырази a из F = ma",
+    "steps": [
+      "a = F / m",
+      "a = 12 / 4",
+      "Ответ: 3 м/с²"
+    ],
+    "example": "Тележку массой 5 кг тянут с силой 20 Н. Трение равно 5 Н. Найдём ускорение",
+    "exampleSteps": [
+      "Равнодействующая: F = 20 − 5 = 15 Н",
+      "a = F / m = 15 / 5",
+      "Ответ: 3 м/с² по направлению тяги"
+    ]
+  },
+  {
+    "id": "energy",
+    "subject": "physics",
+    "grade": 9,
+    "title": "Кинетическая энергия",
+    "intro": "Движущееся тело может совершить работу. Его кинетическая энергия растёт пропорционально массе и квадрату скорости",
+    "formula": "E_k=\\frac{mv^2}{2}",
+    "units": "E: Дж; m: кг; v: м/с",
+    "note": "При удвоении скорости энергия увеличивается в четыре раза. Энергия: скалярная величина; направление скорости в формулу не входит",
+    "question": "Мяч массой 2 кг движется со скоростью 3 м/с. Найди энергию в джоулях",
+    "answer": 9,
+    "hint": "Сначала возведи скорость в квадрат",
+    "steps": [
+      "E = mv² / 2",
+      "E = 2 · 3² / 2",
+      "Ответ: 9 Дж"
+    ],
+    "example": "Тело массой 4 кг движется со скоростью 5 м/с. Какова энергия?",
+    "exampleSteps": [
+      "Квадрат скорости: 5² = 25",
+      "E = 4 · 25 / 2",
+      "Ответ: 50 Дж"
+    ]
+  },
+  {
+    "id": "gas",
+    "subject": "physics",
+    "grade": 10,
+    "title": "Идеальный газ",
+    "intro": "Модель идеального газа связывает давление, объём, количество вещества и абсолютную температуру",
+    "formula": "pV=\\nu RT",
+    "units": "p: Па; V: м³; ν: моль; T: К",
+    "note": "R ≈ 8,31 Дж/(моль·К). Температуру переводим в кельвины: T = t°C + 273,15. Модель лучше описывает разреженные газы вдали от конденсации",
+    "question": "Газ при постоянных объёме и количестве вещества нагрели с 300 К до 600 К. Начальное давление 100 кПа. Найди конечное давление в кПа",
+    "answer": 200,
+    "hint": "При постоянном объёме p / T постоянно",
+    "steps": [
+      "p₂ / p₁ = T₂ / T₁",
+      "p₂ = 100 · 600 / 300",
+      "Ответ: 200 кПа"
+    ],
+    "example": "Газ при постоянном объёме охлаждают с 400 К до 200 К. Было 80 кПа",
+    "exampleSteps": [
+      "p₂ = p₁ · T₂ / T₁",
+      "p₂ = 80 · 200 / 400",
+      "Ответ: 40 кПа"
+    ]
+  },
+  {
+    "id": "fractions",
+    "subject": "math",
+    "grade": 7,
+    "title": "Дроби и пропорции",
+    "intro": "Дробь обозначает часть целого или результат деления. Чтобы складывать дроби, нужно привести их к общему знаменателю",
+    "formula": "\\frac{a}{b}+\\frac{c}{d}=\\frac{ad+bc}{bd}",
+    "units": "b ≠ 0; d ≠ 0",
+    "note": "При умножении перемножают числители и знаменатели. Деление на ненулевую дробь заменяют умножением на обратную",
+    "question": "Вычисли 1/4 + 1/2. Введи дробь или десятичное число",
+    "answer": 0.75,
+    "hint": "Замени 1/2 на 2/4",
+    "steps": [
+      "Общий знаменатель: 4",
+      "1/4 + 2/4 = 3/4",
+      "Ответ: 0,75"
+    ],
+    "example": "Сложим 2/3 и 1/6",
+    "exampleSteps": [
+      "Общий знаменатель: 6",
+      "2/3 = 4/6",
+      "4/6 + 1/6 = 5/6"
+    ]
+  },
+  {
+    "id": "linear",
+    "subject": "math",
+    "grade": 7,
+    "title": "Линейные уравнения",
+    "intro": "Уравнение: равенство с неизвестным. Чтобы сохранить равенство, выполняй одно и то же действие с обеими частями",
+    "formula": "ax+b=0\\quad\\Rightarrow\\quad x=-\\frac{b}{a}",
+    "units": "a ≠ 0",
+    "note": "Если a = 0, нужно рассмотреть b отдельно: при b = 0 подходит любое x, иначе решений нет",
+    "question": "Реши уравнение 3x + 6 = 21",
+    "answer": 5,
+    "hint": "Сначала вычти 6 из обеих частей",
+    "steps": [
+      "3x = 21 − 6 = 15",
+      "x = 15 / 3",
+      "Ответ: x = 5"
+    ],
+    "example": "Решим 4x − 8 = 12",
+    "exampleSteps": [
+      "Прибавляем 8: 4x = 20",
+      "Делим обе части на 4",
+      "x = 5. Проверка: 4 · 5 − 8 = 12"
+    ]
+  },
+  {
+    "id": "pythagoras",
+    "subject": "math",
+    "grade": 8,
+    "title": "Теорема Пифагора",
+    "intro": "В прямоугольном треугольнике квадрат гипотенузы равен сумме квадратов катетов. Гипотенуза лежит напротив прямого угла",
+    "formula": "c^2=a^2+b^2",
+    "units": "a, b: катеты; c: гипотенуза",
+    "note": "Все длины должны быть в одинаковых единицах. Для непрямоугольного треугольника эта формула не подходит",
+    "question": "Катеты прямоугольного треугольника равны 6 и 8 см. Найди гипотенузу в см",
+    "answer": 10,
+    "hint": "Сложи 6² и 8², затем извлеки квадратный корень",
+    "steps": [
+      "c² = 36 + 64 = 100",
+      "c = √100",
+      "Ответ: 10 см"
+    ],
+    "example": "Катеты равны 5 и 12 см. Найдём гипотенузу",
+    "exampleSteps": [
+      "c² = 5² + 12²",
+      "c² = 25 + 144 = 169",
+      "c = 13 см"
+    ]
+  },
+  {
+    "id": "quadratic",
+    "subject": "math",
+    "grade": 8,
+    "title": "Квадратные уравнения",
+    "intro": "Квадратное уравнение содержит x². Дискриминант показывает число действительных корней: два при D > 0, один при D = 0, ни одного при D < 0",
+    "formula": "D=b^2-4ac,\\qquad x_{1,2}=\\frac{-b\\pm\\sqrt{D}}{2a}",
+    "units": "ax² + bx + c = 0; a ≠ 0",
+    "note": "Формула действительных корней применяется при D ≥ 0. Не забывай знак минус перед b",
+    "question": "Найди больший корень уравнения x² − 5x + 6 = 0",
+    "answer": 3,
+    "hint": "D = 25 − 24 = 1",
+    "steps": [
+      "a = 1, b = −5, c = 6. D = 1",
+      "x₁ = (5 + 1)/2 = 3; x₂ = (5 − 1)/2 = 2",
+      "Больший корень: 3"
+    ],
+    "example": "Решим x² − 4x + 3 = 0",
+    "exampleSteps": [
+      "D = (−4)² − 4 · 1 · 3 = 4",
+      "x = (4 ± 2)/2",
+      "Корни: 3 и 1"
+    ]
+  },
+  {
+    "id": "trig",
+    "subject": "math",
+    "grade": 9,
+    "title": "Синус и косинус",
+    "intro": "В прямоугольном треугольнике синус острого угла: отношение противолежащего катета к гипотенузе, косинус: прилежащего",
+    "formula": "\\sin^2\\alpha+\\cos^2\\alpha=1",
+    "units": "Для любого угла α",
+    "note": "Значения sin и cos лежат от −1 до 1. Для острых углов оба положительны. Не путай градусы и радианы",
+    "question": "Противолежащий катет равен 3, гипотенуза: 5. Найди синус угла",
+    "answer": 0.6,
+    "hint": "Раздели противолежащий катет на гипотенузу",
+    "steps": [
+      "sin α = 3/5",
+      "3/5 = 0,6",
+      "Ответ: 0,6"
+    ],
+    "example": "В прямоугольном треугольнике прилежащий катет 8, гипотенуза 10. Найдём cos α",
+    "exampleSteps": [
+      "cos α = прилежащий катет / гипотенуза",
+      "cos α = 8/10",
+      "Ответ: 0,8"
+    ]
+  },
+  {
+    "id": "derivative",
+    "subject": "math",
+    "grade": 10,
+    "title": "Производная",
+    "intro": "Производная показывает мгновенную скорость изменения функции. Геометрически это угловой коэффициент касательной к графику",
+    "formula": "(x^n)prime=nx^{n-1}",
+    "units": "Для целого положительного n; x ∈ ℝ",
+    "note": "Производная константы равна нулю. В физике производная координаты по времени: скорость, а производная скорости: ускорение",
+    "question": "f(x) = x³. Найди f′(2)",
+    "answer": 12,
+    "hint": "Сначала найди производную, потом подставь x = 2",
+    "steps": [
+      "f′(x) = 3x²",
+      "f′(2) = 3 · 2²",
+      "Ответ: 12"
+    ],
+    "example": "Найдём производную f(x) = 2x² + 3x − 7 в точке x = 1",
+    "exampleSteps": [
+      "f′(x) = 4x + 3",
+      "f′(1) = 4 · 1 + 3",
+      "Ответ: 7"
+    ]
+  }
+];
+
+````
+
 ## README.md
 
 ````markdown
-# Тушь
+# pm
 
 Бесплатный сайт изучения физики и математики. Чистые HTML, CSS и JavaScript без сборки.
 
@@ -976,8 +1328,10 @@ SOURCE.md содержит снимок исходного кода первой
 
 ## Проверки
 
-- Проверены структура CSS, XML встроенного SVG, отсутствие Marck Script.
-- Контраст #111 и #555 на бумажной подложке даже поверх чёрного фона: 13,77:1 и 5,44:1. Это расчёт, не визуальная проверка.
-- Проверен синтаксис существующего JavaScript.
-- Браузерная проверка не выполнена: браузер не смог подключиться к локальному серверу.
-- Для просмотра: проверить главную и карточки на 390/900/1440 px, наведение кнопок, reduced-motion и печать справочника без текстур.
+- Структура CSS и XML встроенного SVG проверены
+- Marck Script полностью исключён
+- Расчётный контраст текста #111 и #555 на подложке поверх чёрного фона: 13,77:1 и 5,44:1
+- Синтаксис JavaScript проверен
+- Название интерфейса заменено на pm; удалены конечные точки и длинные тире из отображаемого текста
+- Визуальная проверка в браузере не выполнена: браузеру недоступен локальный сервер
+- Для браузерного просмотра: ширины 390/900/1440 px, наведение кнопок, reduced-motion, печать справочника без текстур
