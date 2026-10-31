@@ -96,11 +96,8 @@ const { gl, ext } = getWebGLContext(canvas);
 fluidGl = gl;
 canvas.addEventListener('webglcontextlost', () => window.stopTushFluid?.(), {signal:inputController.signal});
 
-if (isMobile()) {
-    config.DYE_RESOLUTION = 512;
-}
 if (!ext.supportLinearFiltering) {
-    config.DYE_RESOLUTION = 512;
+    config.DYE_RESOLUTION = 256;
     config.SHADING = false;
     config.BLOOM = false;
     config.SUNRAYS = false;
@@ -115,6 +112,8 @@ function getWebGLContext (canvas) {
     const isWebGL2 = !!gl;
     if (!isWebGL2)
         gl = canvas.getContext('webgl', params) || canvas.getContext('experimental-webgl', params);
+    if (!gl) throw new Error('WebGL недоступен');
+    fluidGl = gl;
 
     let halfFloat;
     let supportLinearFiltering;
@@ -123,6 +122,7 @@ function getWebGLContext (canvas) {
         supportLinearFiltering = gl.getExtension('OES_texture_float_linear');
     } else {
         halfFloat = gl.getExtension('OES_texture_half_float');
+        if (!halfFloat) throw new Error('Текстуры half-float недоступны');
         supportLinearFiltering = gl.getExtension('OES_texture_half_float_linear');
     }
 
@@ -147,6 +147,7 @@ function getWebGLContext (canvas) {
     }
 
 
+    if (!formatRGBA || !formatRG || !formatR) throw new Error('Буферы жидкости недоступны');
     return {
         gl,
         ext: {
@@ -194,6 +195,8 @@ function supportRenderTextureFormat (gl, internalFormat, format, type) {
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
 
     let status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    gl.deleteFramebuffer(fbo);
+    gl.deleteTexture(texture);
     return status == gl.FRAMEBUFFER_COMPLETE;
 }
 
@@ -1499,5 +1502,5 @@ function hashCode (s) {
     }
     return hash;
 };
-} catch (error) { window.stopTushFluid?.(); console.info("Статичные чернила: WebGL недоступен."); }
+} catch (error) { window.stopTushFluid?.(); console.info("Статичные чернила:", error.message); }
 };
