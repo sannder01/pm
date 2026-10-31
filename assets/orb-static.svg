@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  <defs>
+    <radialGradient id="ink" cx="31%" cy="25%" r="88%">
+      <stop stop-color="#eee"/><stop offset=".24" stop-color="#8a8a8a"/>
+      <stop offset=".43" stop-color="#262626"/><stop offset=".67" stop-color="#080808"/>
+      <stop offset=".88" stop-color="#444"/><stop offset="1" stop-color="#b4b4b4"/>
+    </radialGradient>
+    <linearGradient id="light" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fff" stop-opacity=".86"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="form"><path d="M297 118C365 107 425 160 447 226C472 302 438 363 399 413C354 470 268 474 206 432C146 391 133 326 148 251C161 185 221 129 297 118Z"/></clipPath>
+    <filter id="soft"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+  <g fill="#777" opacity=".5">
+    <circle cx="109" cy="201" r="1.4"/><circle cx="166" cy="130" r="1"/>
+    <circle cx="420" cy="132" r="1.4"/><circle cx="486" cy="274" r="1.2"/>
+    <circle cx="454" cy="443" r="1.7"/><circle cx="191" cy="466" r="1.2"/>
+    <circle cx="109" cy="366" r="1.8"/><circle cx="502" cy="352" r="1"/>
+  </g>
+  <g clip-path="url(#form)">
+    <path d="M100 100H500V500H100Z" fill="url(#ink)"/>
+    <path d="M161 273C173 158 328 108 398 158C286 117 200 226 191 336" fill="none" stroke="url(#light)" stroke-width="22" filter="url(#soft)"/>
+    <path d="M184 378C225 446 375 478 430 352C383 418 286 416 239 395" fill="none" stroke="#e8e8e8" stroke-width="7" opacity=".6" filter="url(#soft)"/>
+    <g fill="none" stroke="#fff" stroke-width=".65" opacity=".15">
+      <path d="M150 245Q310 330 452 234M144 274Q301 354 450 271M144 306Q299 379 445 308M149 339Q293 400 433 343M161 373Q291 421 416 378"/>
+      <path d="M202 162Q270 300 214 438M247 130Q311 294 262 459M294 118Q350 301 310 463M343 124Q389 301 357 449M390 151Q421 303 401 412"/>
+    </g>
+  </g>
+</svg>

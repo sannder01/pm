@@ -28,24 +28,36 @@ try {
 
 // Simulation section
 
-const canvas = document.querySelector('#fluid');
-if (!canvas || matchMedia('(prefers-reduced-motion: reduce)').matches || innerWidth <= 900) return;
+const previousCanvas = document.querySelector('#fluid');
+if (!previousCanvas || matchMedia('(prefers-reduced-motion: reduce)').matches || innerWidth <= 900 || document.hidden) return;
 window.stopTushFluid?.();
+// Новый canvas позволяет вернуться на главную после освобождения контекста.
+const canvas = previousCanvas.cloneNode(false);
+previousCanvas.replaceWith(canvas);
 let stopped = false;
-window.stopTushFluid = () => { stopped = true; }; 
+let fluidFrame = 0;
+let fluidGl = null;
+const inputController = new AbortController();
+window.stopTushFluid = () => {
+    if (stopped) return;
+    stopped = true;
+    cancelAnimationFrame(fluidFrame);
+    inputController.abort();
+    fluidGl?.getExtension('WEBGL_lose_context')?.loseContext();
+};
 resizeCanvas();
 
 let config = {
-    SIM_RESOLUTION: 128,
-    DYE_RESOLUTION: 512,
+    SIM_RESOLUTION: 64,
+    DYE_RESOLUTION: 256,
     CAPTURE_RESOLUTION: 512,
     DENSITY_DISSIPATION: 1,
     VELOCITY_DISSIPATION: 0.2,
     PRESSURE: 0.8,
-    PRESSURE_ITERATIONS: 20,
-    CURL: 30,
-    SPLAT_RADIUS: 0.25,
-    SPLAT_FORCE: 6000,
+    PRESSURE_ITERATIONS: 12,
+    CURL: 18,
+    SPLAT_RADIUS: 0.15,
+    SPLAT_FORCE: 1900,
     SHADING: false,
     COLORFUL: false,
     COLOR_UPDATE_SPEED: 10,
@@ -81,6 +93,8 @@ let splatStack = [];
 pointers.push(new pointerPrototype());
 
 const { gl, ext } = getWebGLContext(canvas);
+fluidGl = gl;
+canvas.addEventListener('webglcontextlost', () => window.stopTushFluid?.(), {signal:inputController.signal});
 
 if (isMobile()) {
     config.DYE_RESOLUTION = 512;
@@ -1066,14 +1080,14 @@ function updateKeywords () {
 
 updateKeywords();
 initFramebuffers();
-multipleSplats(parseInt(Math.random() * 20) + 5);
+multipleSplats(2);
 
 let lastUpdateTime = Date.now();
 let colorUpdateTimer = 0.0;
 update();
 
 function update () {
-    if (stopped || !canvas.isConnected || matchMedia("(prefers-reduced-motion: reduce)").matches || innerWidth <= 900) { gl.getExtension("WEBGL_lose_context")?.loseContext(); return; }
+    if (stopped || !canvas.isConnected || document.hidden || matchMedia("(prefers-reduced-motion: reduce)").matches || innerWidth <= 900) { window.stopTushFluid?.(); return; }
     const dt = calcDeltaTime();
     if (resizeCanvas())
         initFramebuffers();
@@ -1082,7 +1096,7 @@ function update () {
     if (!config.PAUSED)
         step(dt);
     render(null);
-    requestAnimationFrame(update);
+    fluidFrame = requestAnimationFrame(update);
 }
 
 function calcDeltaTime () {
@@ -1368,7 +1382,7 @@ canvas.parentElement.addEventListener('pointermove', e => {
     let y = scaleByPixelRatio(e.clientY - rect.top);
     if (!pointer.down) updatePointerDownData(pointer, -1, x, y);
     else updatePointerMoveData(pointer, x, y);
-});
+}, {signal:inputController.signal,passive:true});
 
 function updatePointerDownData (pointer, id, posX, posY) {
     pointer.id = id;
@@ -1472,7 +1486,7 @@ function getTextureScale (texture, width, height) {
 }
 
 function scaleByPixelRatio (input) {
-    let pixelRatio = window.devicePixelRatio || 1;
+    let pixelRatio = Math.min(window.devicePixelRatio || 1, 1.25);
     return Math.floor(input * pixelRatio);
 }
 
@@ -1485,5 +1499,5 @@ function hashCode (s) {
     }
     return hash;
 };
-} catch (error) { console.info("Статичные чернила: WebGL недоступен."); }
+} catch (error) { window.stopTushFluid?.(); console.info("Статичные чернила: WebGL недоступен."); }
 };
