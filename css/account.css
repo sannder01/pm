@@ -1,0 +1,31 @@
+.account-link { font:12px var(--sans);padding:9px 12px;border:1px solid var(--line);border-radius:999px;white-space:nowrap }
+.account-link:hover { border-color:var(--ink) }
+.account-grid { display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:24px }
+.account-avatar { width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--paper);font:28px var(--serif);margin-bottom:24px }
+.account-name { font-size:32px;overflow-wrap:anywhere;margin-bottom:10px }
+.account-email { overflow-wrap:anywhere }
+.account-status { font-size:12px;margin-block:24px;color:var(--muted) }
+#profile-form { display:grid;gap:14px }
+#profile-form label { font-size:13px }
+#profile-form input { width:100%;min-width:0;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--paper);color:var(--ink);padding:12px 15px }
+#profile-form .btn { justify-self:start }
+.account-signout { display:inline-block;margin-top:30px;font-size:12px;text-decoration:underline;text-underline-offset:4px }
+.account-stats { display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:32px }
+.account-stats strong { display:block;font:36px var(--serif) }
+.account-stats span { display:block;font-size:12px;color:var(--muted);margin-top:8px }
+.account-directions { margin:35px 0;display:grid;gap:25px;font-size:13px }
+.account-directions>div { display:grid;grid-template-columns:1fr auto }
+.account-directions .xp-bar { grid-column:1/-1;margin-top:10px }
+.account-note { font-size:12px;margin-top:25px }
+.account-history { margin-top:60px }
+.account-history h2,.account-login h2 { font-size:clamp(28px,4vw,42px) }
+.account-login { max-width:730px }
+@media(min-width:901px) and (max-width:1280px) {header {flex-wrap:wrap}nav {order:3;width:100%;justify-content:center}}
+@media(max-width:600px) {
+  .account-grid { grid-template-columns:1fr }
+  .account-link { font-size:11px;padding-inline:9px }
+  .header-actions { flex-wrap:wrap;justify-content:flex-end }
+  header { gap:10px }
+  .account-stats strong { font-size:29px }
+  .account-stats { gap:8px }
+}
